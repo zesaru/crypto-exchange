@@ -75,16 +75,42 @@ export default {
 
   data() {
     return {
-      asset: {}
+      asset: {},
+      history: []
     }
   },
   created() {
     this.getCoin()
   },
+
+  computed: {
+    min() {
+      return Math.min(
+        ...this.history.map(h => parseFloat(h.priceUsd).toFixed(2))
+      )
+    },
+
+    max() {
+      return Math.max(
+        ...this.history.map(h => parseFloat(h.priceUsd).toFixed(2))
+      )
+    },
+
+    avg() {
+      return Math.abs(
+        ...this.history.map(h => parseFloat(h.priceUsd).toFixed(2))
+      )
+    }
+  },
   methods: {
     getCoin() {
       const id = this.$route.params.id //parametro del objeto router
-      api.getAsset(id).then(asset => (this.asset = asset))
+      Promise.all([api.getAsset(id), api.getAssetHistory(id)]).then(
+        ([asset, history]) => {
+          this.asset = asset
+          this.history = history
+        }
+      )
     }
   }
 }
